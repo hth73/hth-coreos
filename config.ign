@@ -1,0 +1,93 @@
+{
+  "ignition": {
+    "version": "3.5.0"
+  },
+  "passwd": {
+    "users": [
+      {
+        "name": "core",
+        "sshAuthorizedKeys": [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICn/bnaOdeE/cZaqbDXVP9q96Rj5gs878+9806K0UK2L"
+        ]
+      },
+      {
+        "groups": [
+          "wheel"
+        ],
+        "homeDir": "/home/hth",
+        "name": "hth",
+        "noCreateHome": false,
+        "passwordHash": "$y$j9T$xtFqbXNWo4Q7ye693r6OG0$3hG8X61jMRQICFMnByai1BKfaHv1B/n3MdxNUf72GR/",
+        "sshAuthorizedKeys": [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICn/bnaOdeE/cZaqbDXVP9q96Rj5gs878+9806K0UK2L"
+        ],
+        "shell": "/bin/bash"
+      }
+    ]
+  },
+  "storage": {
+    "files": [
+      {
+        "overwrite": true,
+        "path": "/etc/hostname",
+        "contents": {
+          "compression": "",
+          "source": "data:,mycoreos"
+        },
+        "mode": 420
+      },
+      {
+        "overwrite": true,
+        "path": "/etc/vconsole.conf",
+        "contents": {
+          "compression": "",
+          "source": "data:,KEYMAP%3Dde"
+        },
+        "mode": 420
+      },
+      {
+        "overwrite": true,
+        "path": "/etc/profile.d/systemd-pager.sh",
+        "contents": {
+          "compression": "",
+          "source": "data:,export%20SYSTEMD_PAGER%3Dcat%0A"
+        },
+        "mode": 420
+      },
+      {
+        "overwrite": true,
+        "path": "/etc/profile.d/zz-default-editor.sh",
+        "contents": {
+          "compression": "",
+          "source": "data:,export%20EDITOR%3Dvim%0A"
+        },
+        "mode": 420
+      }
+    ],
+    "links": [
+      {
+        "overwrite": true,
+        "path": "/etc/localtime",
+        "target": "../usr/share/zoneinfo/Europe/Berlin"
+      }
+    ]
+  },
+  "systemd": {
+    "units": [
+      {
+        "contents": "[Unit]\nDescription=Install Docker CE\nWants=network-online.target\nAfter=network-online.target\nBefore=zincati.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\n\n# Docker Repository hinzufügen\nExecStart=/usr/bin/curl -fsSL \\\n  --output /etc/yum.repos.d/docker-ce.repo \\\n  https://download.docker.com/linux/fedora/docker-ce.repo\n\n# Standard Container Engine ersetzen\nExecStart=/usr/bin/rpm-ostree override remove \\\n  moby-engine \\\n  containerd \\\n  runc \\\n  docker-cli \\\n  --install docker-ce \\\n  --install docker-ce-cli \\\n  --install containerd.io\n\nExecStart=/usr/bin/touch /var/lib/%N.stamp\nExecStart=/usr/bin/systemctl --no-block reboot\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "rpm-ostree-install-docker-ce.service"
+      },
+      {
+        "contents": "[Unit]\nDescription=Layer vim with rpm-ostree\nWants=network-online.target\nAfter=network-online.target\nBefore=zincati.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\n\nExecStart=/usr/bin/rpm-ostree install -y --allow-inactive vim\n\nExecStart=/usr/bin/touch /var/lib/%N.stamp\nExecStart=/usr/bin/systemctl --no-block reboot\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "rpm-ostree-install-vim.service"
+      },
+      {
+        "enabled": true,
+        "name": "docker.service"
+      }
+    ]
+  }
+}

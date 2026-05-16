@@ -1,0 +1,132 @@
+# Fedora CoreOS Butane configuration
+# Date: 2026-05-16
+
+variant: fcos
+version: 1.6.0
+
+passwd:
+  users:
+    # Default User core
+    - name: core
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICn/bnaOdeE/cZaqbDXVP9q96Rj5gs878+9806K0UK2L
+
+    # User HTH
+    - name: hth
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICn/bnaOdeE/cZaqbDXVP9q96Rj5gs878+9806K0UK2L
+      password_hash: $y$j9T$xtFqbXNWo4Q7ye693r6OG0$3hG8X61jMRQICFMnByai1BKfaHv1B/n3MdxNUf72GR/
+      home_dir: /home/hth
+      no_create_home: false
+      groups:
+        - wheel
+      shell: /bin/bash
+
+storage:
+  files:
+    # Hostname setzen
+    - path: /etc/hostname
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: mycoreos
+
+    # Deutsche Tastatur
+    - path: /etc/vconsole.conf
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: KEYMAP=de
+
+    # Systemd ohne Pager
+    - path: /etc/profile.d/systemd-pager.sh
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          export SYSTEMD_PAGER=cat
+
+    # Standardeditor
+    - path: /etc/profile.d/zz-default-editor.sh
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          export EDITOR=vim
+
+  links:
+    # Zeitzone
+    - path: /etc/localtime
+      overwrite: true
+      target: ../usr/share/zoneinfo/Europe/Berlin
+
+systemd:
+  units:
+    # -------------------------------------------------------------------------
+    # Docker CE installieren
+    # -------------------------------------------------------------------------
+    - name: rpm-ostree-install-docker-ce.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Install Docker CE
+        Wants=network-online.target
+        After=network-online.target
+        Before=zincati.service
+        ConditionPathExists=!/var/lib/%N.stamp
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+
+        # Docker Repository hinzufügen
+        ExecStart=/usr/bin/curl -fsSL \
+          --output /etc/yum.repos.d/docker-ce.repo \
+          https://download.docker.com/linux/fedora/docker-ce.repo
+
+        # Standard Container Engine ersetzen
+        ExecStart=/usr/bin/rpm-ostree override remove \
+          moby-engine \
+          containerd \
+          runc \
+          docker-cli \
+          --install docker-ce \
+          --install docker-ce-cli \
+          --install containerd.io
+
+        ExecStart=/usr/bin/touch /var/lib/%N.stamp
+        ExecStart=/usr/bin/systemctl --no-block reboot
+
+        [Install]
+        WantedBy=multi-user.target
+    
+    # -------------------------------------------------------------------------
+    # Vim installieren
+    # -------------------------------------------------------------------------
+    - name: rpm-ostree-install-vim.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Layer vim with rpm-ostree
+        Wants=network-online.target
+        After=network-online.target
+        Before=zincati.service
+        ConditionPathExists=!/var/lib/%N.stamp
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+
+        ExecStart=/usr/bin/rpm-ostree install -y --allow-inactive vim
+
+        ExecStart=/usr/bin/touch /var/lib/%N.stamp
+        ExecStart=/usr/bin/systemctl --no-block reboot
+
+        [Install]
+        WantedBy=multi-user.target
+
+    # -------------------------------------------------------------------------
+    # Docker beim Boot aktivieren
+    # -------------------------------------------------------------------------
+    - name: docker.service
+      enabled: true
