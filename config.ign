@@ -12,7 +12,8 @@
       },
       {
         "groups": [
-          "wheel"
+          "wheel",
+          "docker"
         ],
         "homeDir": "/home/hth",
         "name": "hth",
@@ -56,10 +57,10 @@
       },
       {
         "overwrite": true,
-        "path": "/etc/profile.d/zz-default-editor.sh",
+        "path": "/etc/profile.d/zz-shell-aliases.sh",
         "contents": {
-          "compression": "",
-          "source": "data:,export%20EDITOR%3Dvim%0A"
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/3yQwY7bIBCG736KUVKJ9oD7BBwiNYdIlSo17d4nMLZHiwHB2Nr46VeWQzbZw14Y/u9Hn4A92DiOGJz2HAi6aVmu0HFwlBua0cPu2/du6UDrC5bhx65p9nAWDA6zg6NjibmhtxSzwPHX6d+fvybMPFb0cjr/P/zeULOHg2csVBpcJ7StUdZB26o7qOTnE3ygn4rn5qHsMyWjcl/zzEatt6jZohh1QQGtk0cO68SeQ28CzZTrMcfl1agyuQjBuqniwQxcJObrLXOy6K1R2wStQ7TRx7vGF0ML1oBG+QLaYx8H0Lpn2VadKcWy7nOcknacyUrMTEV3nIvcbf5ZIFHQ68ILfdi+NmS6xCi3h22hVlMyUxIeqX4cZdNhkY7EDs17AAAA//9uTjijLgIAAA=="
         },
         "mode": 420
       }
@@ -75,14 +76,9 @@
   "systemd": {
     "units": [
       {
-        "contents": "[Unit]\nDescription=Install Docker CE\nWants=network-online.target\nAfter=network-online.target\nBefore=zincati.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\n\n# Docker Repository hinzufügen\nExecStart=/usr/bin/curl -fsSL \\\n  --output /etc/yum.repos.d/docker-ce.repo \\\n  https://download.docker.com/linux/fedora/docker-ce.repo\n\n# Standard Container Engine ersetzen\nExecStart=/usr/bin/rpm-ostree override remove \\\n  moby-engine \\\n  containerd \\\n  runc \\\n  docker-cli \\\n  --install docker-ce \\\n  --install docker-ce-cli \\\n  --install containerd.io\n\nExecStart=/usr/bin/touch /var/lib/%N.stamp\nExecStart=/usr/bin/systemctl --no-block reboot\n\n[Install]\nWantedBy=multi-user.target\n",
+        "contents": "[Unit]\nDescription=Install Docker CE and common tools\nWants=network-online.target\nAfter=network-online.target\nBefore=zincati.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\n\n# Docker Repository hinzufügen\nExecStart=/usr/bin/curl -fsSL \\\n  --output /etc/yum.repos.d/docker-ce.repo \\\n  https://download.docker.com/linux/fedora/docker-ce.repo\n\n# Docker CE installieren und Standardpakete ersetzen\nExecStart=/usr/bin/rpm-ostree override remove \\\n  moby-engine \\\n  containerd \\\n  runc \\\n  docker-cli \\\n  --install docker-ce \\\n  --install docker-ce-cli \\\n  --install containerd.io \\\n  --install bat \\\n  --install neovim \\\n  --install vim \\\n  --install wget \\\n  --install tree \\\n  --install ripgrep \\\n  --install fzf \\\n  --install btop \\\n  --install ncdu \\\n  --install eza \\\n  --install fastfetch \\\n  --install traceroute \\\n  --install git \\\n  --install tmux\n\nExecStart=/usr/bin/touch /var/lib/%N.stamp\nExecStart=/usr/bin/systemctl --no-block reboot\n\n[Install]\nWantedBy=multi-user.target\n",
         "enabled": true,
-        "name": "rpm-ostree-install-docker-ce.service"
-      },
-      {
-        "contents": "[Unit]\nDescription=Layer vim with rpm-ostree\nWants=network-online.target\nAfter=network-online.target\nBefore=zincati.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\n\nExecStart=/usr/bin/rpm-ostree install -y --allow-inactive vim\n\nExecStart=/usr/bin/touch /var/lib/%N.stamp\nExecStart=/usr/bin/systemctl --no-block reboot\n\n[Install]\nWantedBy=multi-user.target\n",
-        "enabled": true,
-        "name": "rpm-ostree-install-vim.service"
+        "name": "rpm-ostree-install-packages.service"
       },
       {
         "enabled": true,

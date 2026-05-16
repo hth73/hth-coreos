@@ -20,6 +20,7 @@ passwd:
       no_create_home: false
       groups:
         - wheel
+        - docker
       shell: /bin/bash
 
 storage:
@@ -46,13 +47,35 @@ storage:
         inline: |
           export SYSTEMD_PAGER=cat
 
-    # Standardeditor
-    - path: /etc/profile.d/zz-default-editor.sh
+    - path: /etc/profile.d/zz-shell-aliases.sh
       mode: 0644
       overwrite: true
       contents:
         inline: |
-          export EDITOR=vim
+          # command-line fuzzy finder
+          eval "$(fzf --bash)"
+
+          # Standard Editor
+          export EDITOR=nvim
+          export VISUAL=nvim
+
+          # Aliases
+          alias ..='cd ..'
+          alias ...='cd ../..'
+          alias ....='cd ../../..'
+          alias .....='cd ../../../..'
+          alias grep='rg'
+          alias vi='nvim'
+          alias cat='bat --plain --paging=never'
+          alias disk='sudo ncdu'
+          alias h=history
+          alias ipcalc='ipcalc --nocolor'
+          alias ls=eza
+          alias la='ls -lagoh --git --git-repos --group-directories-first'
+          alias ll='ls -lagoh --total-size --git --group-directories-first'
+          alias reboot='sudo reboot'
+          alias up=uptime
+          alias ver=fastfetch
 
   links:
     # Zeitzone
@@ -62,14 +85,11 @@ storage:
 
 systemd:
   units:
-    # -------------------------------------------------------------------------
-    # Docker CE installieren
-    # -------------------------------------------------------------------------
-    - name: rpm-ostree-install-docker-ce.service
+    - name: rpm-ostree-install-packages.service
       enabled: true
       contents: |
         [Unit]
-        Description=Install Docker CE
+        Description=Install Docker CE and common tools
         Wants=network-online.target
         After=network-online.target
         Before=zincati.service
@@ -84,7 +104,7 @@ systemd:
           --output /etc/yum.repos.d/docker-ce.repo \
           https://download.docker.com/linux/fedora/docker-ce.repo
 
-        # Standard Container Engine ersetzen
+        # Docker CE installieren und Standardpakete ersetzen
         ExecStart=/usr/bin/rpm-ostree override remove \
           moby-engine \
           containerd \
@@ -92,32 +112,21 @@ systemd:
           docker-cli \
           --install docker-ce \
           --install docker-ce-cli \
-          --install containerd.io
-
-        ExecStart=/usr/bin/touch /var/lib/%N.stamp
-        ExecStart=/usr/bin/systemctl --no-block reboot
-
-        [Install]
-        WantedBy=multi-user.target
-    
-    # -------------------------------------------------------------------------
-    # Vim installieren
-    # -------------------------------------------------------------------------
-    - name: rpm-ostree-install-vim.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Layer vim with rpm-ostree
-        Wants=network-online.target
-        After=network-online.target
-        Before=zincati.service
-        ConditionPathExists=!/var/lib/%N.stamp
-
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-
-        ExecStart=/usr/bin/rpm-ostree install -y --allow-inactive vim
+          --install containerd.io \
+          --install bat \
+          --install neovim \
+          --install vim \
+          --install wget \
+          --install tree \
+          --install ripgrep \
+          --install fzf \
+          --install btop \
+          --install ncdu \
+          --install eza \
+          --install fastfetch \
+          --install traceroute \
+          --install git \
+          --install tmux
 
         ExecStart=/usr/bin/touch /var/lib/%N.stamp
         ExecStart=/usr/bin/systemctl --no-block reboot
