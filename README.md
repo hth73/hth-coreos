@@ -55,3 +55,7 @@ sudo coreos-installer install /dev/sda --ignition-url https://raw.githubusercont
 curl -LO https://raw.githubusercontent.com/hth73/hth-coreos/refs/heads/main/config.ign
 sudo coreos-installer install /dev/sda --ignition-file config.ign
 ```
+
+## CoreOS mit Packer/Vagrant/Ansible automatisieren
+
+[CoreOS Linux Unattended Installation with Packer, Vagrant and Ansible](https://github.com/hth73/hth-ansible-wks)
