@@ -58,4 +58,4 @@ sudo coreos-installer install /dev/sda --ignition-file config.ign
 
 ## CoreOS mit Packer/Vagrant/Ansible automatisieren
 
-[CoreOS Linux Unattended Installation with Packer, Vagrant and Ansible](https://github.com/hth73/hth-ansible-wks)
+[CoreOS Linux Unattended Installation with Packer, Vagrant and Ansible](https://github.com/hth73/hth-ansible-wks/blob/main/packer/coreos/README.md)
