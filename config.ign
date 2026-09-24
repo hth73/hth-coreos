@@ -64,6 +64,14 @@
           "source": "data:;base64,H4sIAAAAAAAC/3yQwY7bIBCG736KUVKJ9oD7BBwiNYdIlSo17d4nMLZHiwHB2Nr46VeWQzbZw14Y/u9Hn4A92DiOGJz2HAi6aVmu0HFwlBua0cPu2/du6UDrC5bhx65p9nAWDA6zg6NjibmhtxSzwPHX6d+fvybMPFb0cjr/P/zeULOHg2csVBpcJ7StUdZB26o7qOTnE3ygn4rn5qHsMyWjcl/zzEatt6jZohh1QQGtk0cO68SeQ28CzZTrMcfl1agyuQjBuqniwQxcJObrLXOy6K1R2wStQ7TRx7vGF0ML1oBG+QLaYx8H0Lpn2VadKcWy7nOcknacyUrMTEV3nIvcbf5ZIFHQ68ILfdi+NmS6xCi3h22hVlMyUxIeqX4cZdNhkY7EDs17AAAA//9uTjijLgIAAA=="
         },
         "mode": 420
+      },
+      {
+        "path": "/etc/zincati/config.d/90-auto-updates.toml",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/2TMMarDMBCE4X5PsegAfgJ3D9wEcoKURhglGhyBvRLSCuOcPqhwlXb45p9bDl5RHUH8c0PgibU0UNXiFevJE5uMElOIL0N0+eHaHGncsXySoNN7Kynj74ayRen+5zAcUUI6nKPgz8oTz2weTQw7quqLLr3XU3b8t9bQBln1vexRmqL70dI3AAD//1c3o3i2AAAA"
+        },
+        "mode": 420
       }
     ],
     "links": [
